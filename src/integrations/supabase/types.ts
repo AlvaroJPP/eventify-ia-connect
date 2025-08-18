@@ -25,6 +25,7 @@ export type Database = {
           nome_evento: string
           responsavel_evento: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           contato_evento: string
@@ -36,6 +37,7 @@ export type Database = {
           nome_evento: string
           responsavel_evento: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           contato_evento?: string
@@ -47,6 +49,37 @@ export type Database = {
           nome_evento?: string
           responsavel_evento?: string
           updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
         }
         Relationships: []
       }
@@ -60,6 +93,7 @@ export type Database = {
           preco_servico: number | null
           responsavel_servico: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           contato_servico: string
@@ -70,6 +104,7 @@ export type Database = {
           preco_servico?: number | null
           responsavel_servico: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           contato_servico?: string
@@ -80,6 +115,7 @@ export type Database = {
           preco_servico?: number | null
           responsavel_servico?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -91,7 +127,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_type: "usuario" | "colaborador"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -218,6 +254,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_type: ["usuario", "colaborador"],
+    },
   },
 } as const

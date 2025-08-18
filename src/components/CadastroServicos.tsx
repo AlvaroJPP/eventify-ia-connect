@@ -24,9 +24,22 @@ export const CadastroServicos = () => {
     setLoading(true);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Você precisa estar logado para cadastrar serviços.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const dataToInsert = {
         ...formData,
-        preco_servico: formData.preco_servico ? parseFloat(formData.preco_servico) : null
+        preco_servico: formData.preco_servico ? parseFloat(formData.preco_servico) : null,
+        user_id: user.id
       };
 
       const { error } = await supabase

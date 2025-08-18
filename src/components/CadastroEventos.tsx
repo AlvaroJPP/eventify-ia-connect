@@ -25,9 +25,21 @@ export const CadastroEventos = () => {
     setLoading(true);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Você precisa estar logado para cadastrar eventos.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase
         .from('eventos')
-        .insert([formData]);
+        .insert([{ ...formData, user_id: user.id }]);
 
       if (error) {
         toast({
