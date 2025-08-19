@@ -128,12 +128,12 @@ const Index = () => {
                 </SheetContent>
               </Sheet>
               
-              <h1 className="text-lg font-bold text-primary">Sistema de Eventos & Serviços</h1>
+              <h1 className="text-lg font-bold text-primary">COP30 Hub Belém</h1>
             </div>
 
             {/* Desktop Header */}
-            <h1 className="hidden md:block text-2xl font-bold text-primary">Sistema de Eventos & Serviços</h1>
-            
+            <h1 className="hidden md:block text-2xl font-bold text-primary">COP30 Hub Belém</h1>
+
             <div className="hidden md:flex gap-4">
               <Button 
                 variant={activeTab === 'home' ? 'default' : 'ghost'} 
