@@ -6,16 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, DollarSign, User, Phone } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Users, DollarSign, Phone } from "lucide-react";
 
 export const CadastroServicos = () => {
   const { toast } = useToast();
+  const { profile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     nome_servico: "",
     descricao_servico: "",
     preco_servico: "",
-    responsavel_servico: "",
     contato_servico: ""
   });
 
@@ -39,6 +40,7 @@ export const CadastroServicos = () => {
       const dataToInsert = {
         ...formData,
         preco_servico: formData.preco_servico ? parseFloat(formData.preco_servico) : null,
+        responsavel_servico: profile?.full_name || 'Não informado',
         user_id: user.id
       };
 
@@ -63,7 +65,6 @@ export const CadastroServicos = () => {
           nome_servico: "",
           descricao_servico: "",
           preco_servico: "",
-          responsavel_servico: "",
           contato_servico: ""
         });
       }
@@ -132,19 +133,6 @@ export const CadastroServicos = () => {
             />
           </div>
 
-          <div>
-            <Label htmlFor="responsavel_servico" className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              Responsável pelo Serviço *
-            </Label>
-            <Input
-              id="responsavel_servico"
-              value={formData.responsavel_servico}
-              onChange={(e) => handleInputChange("responsavel_servico", e.target.value)}
-              placeholder="Nome do responsável"
-              required
-            />
-          </div>
 
           <div>
             <Label htmlFor="contato_servico" className="flex items-center gap-2">

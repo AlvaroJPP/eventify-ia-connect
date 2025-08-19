@@ -1,19 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Users, MessageCircle, Plus, Menu, LogOut } from "lucide-react";
+import { Calendar, Users, MessageCircle, Plus, Menu, LogOut, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { CadastroEventos } from "@/components/CadastroEventos";
 import { CadastroServicos } from "@/components/CadastroServicos";
 import { ListaEventos } from "@/components/ListaEventos";
 import { ListaServicos } from "@/components/ListaServicos";
 import { ChatInterface } from "@/components/ChatInterface";
+import { CarrinhoCompras } from "@/components/CarrinhoCompras";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const Index = () => {
   const { user, profile, loading, signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState<'home' | 'eventos' | 'servicos' | 'chat'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'eventos' | 'servicos' | 'carrinho' | 'chat'>('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Redirect if not authenticated
@@ -86,6 +88,19 @@ const Index = () => {
                       <Users className="w-4 h-4 mr-2" />
                       Serviços
                     </Button>
+                    {profile?.user_type === 'usuario' && (
+                      <Button 
+                        variant={activeTab === 'carrinho' ? 'default' : 'ghost'} 
+                        onClick={() => {
+                          setActiveTab('carrinho');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="justify-start"
+                      >
+                        <ShoppingCart className="w-4 h-4 mr-2" />
+                        Carrinho
+                      </Button>
+                    )}
                     <Button 
                       variant={activeTab === 'chat' ? 'default' : 'ghost'} 
                       onClick={() => {
@@ -140,6 +155,15 @@ const Index = () => {
                 <Users className="w-4 h-4 mr-2" />
                 Serviços
               </Button>
+              {profile?.user_type === 'usuario' && (
+                <Button 
+                  variant={activeTab === 'carrinho' ? 'default' : 'ghost'} 
+                  onClick={() => setActiveTab('carrinho')}
+                >
+                  <ShoppingCart className="w-4 h-4 mr-2" />
+                  Carrinho
+                </Button>
+              )}
               <Button 
                 variant={activeTab === 'chat' ? 'default' : 'ghost'} 
                 onClick={() => setActiveTab('chat')}
@@ -151,6 +175,7 @@ const Index = () => {
 
             {/* User Menu - Desktop */}
             <div className="hidden md:flex items-center gap-4">
+              <ThemeToggle />
               <div className="text-right">
                 <p className="text-sm font-medium">{profile?.full_name || user?.email}</p>
                 <p className="text-xs text-muted-foreground">
@@ -164,7 +189,8 @@ const Index = () => {
             </div>
 
             {/* Mobile User Button */}
-            <div className="md:hidden">
+            <div className="md:hidden flex items-center gap-2">
+              <ThemeToggle />
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4" />
               </Button>
@@ -295,6 +321,16 @@ const Index = () => {
               {canCreateContent && <CadastroServicos />}
               <ListaServicos />
             </div>
+          </div>
+        )}
+
+        {activeTab === 'carrinho' && (
+          <div className="space-y-8">
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-bold">Carrinho de Compras</h2>
+              <p className="text-muted-foreground">Gerencie seus serviços contratados</p>
+            </div>
+            <CarrinhoCompras />
           </div>
         )}
 
