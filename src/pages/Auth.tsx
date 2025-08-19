@@ -190,7 +190,7 @@ export default function Auth() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="userType">Tipo de Usuário</Label>
-                  <Select name="userType" required>
+                  <Select name="userType" required defaultValue="">
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
