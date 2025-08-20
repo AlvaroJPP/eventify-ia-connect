@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Users, MessageCircle, Plus, Menu, LogOut, ShoppingCart } from "lucide-react";
+import { Calendar, Users, MessageCircle, Plus, Menu, LogOut, ShoppingCart, Settings } from "lucide-react";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,12 +11,15 @@ import { ListaEventos } from "@/components/ListaEventos";
 import { ListaServicos } from "@/components/ListaServicos";
 import { ChatInterface } from "@/components/ChatInterface";
 import { CarrinhoCompras } from "@/components/CarrinhoCompras";
+import PerfilConfiguracoes from "@/components/PerfilConfiguracoes";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const Index = () => {
   const { user, profile, loading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<'home' | 'eventos' | 'servicos' | 'carrinho' | 'chat'>('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   // Redirect if not authenticated
   if (!loading && !user) {
@@ -119,6 +122,10 @@ const Index = () => {
                       <p className="text-xs text-muted-foreground mb-4">
                         Tipo: {profile?.user_type === 'colaborador' ? 'Colaborador' : 'Usuário'}
                       </p>
+                      <Button variant="outline" onClick={() => setShowProfile(true)} className="w-full justify-start mb-2">
+                        <Settings className="w-4 h-4 mr-2" />
+                        Configurações
+                      </Button>
                       <Button variant="outline" onClick={handleSignOut} className="w-full justify-start">
                         <LogOut className="w-4 h-4 mr-2" />
                         Sair
@@ -182,6 +189,20 @@ const Index = () => {
                   {profile?.user_type === 'colaborador' ? 'Colaborador' : 'Usuário'}
                 </p>
               </div>
+              <Dialog open={showProfile} onOpenChange={setShowProfile}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Perfil
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Configurações do Perfil</DialogTitle>
+                  </DialogHeader>
+                  <PerfilConfiguracoes />
+                </DialogContent>
+              </Dialog>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Sair
@@ -191,8 +212,8 @@ const Index = () => {
             {/* Mobile User Button */}
             <div className="md:hidden flex items-center gap-2">
               <ThemeToggle />
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4" />
+              <Button variant="outline" size="sm" onClick={() => setShowProfile(true)}>
+                <Settings className="w-4 h-4" />
               </Button>
             </div>
           </nav>

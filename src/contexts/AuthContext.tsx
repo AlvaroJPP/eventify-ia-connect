@@ -88,6 +88,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: 'usuario' | 'colaborador') => {
+    // First check if email already exists
+    const { data: existingUser } = await supabase.auth.getUser();
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', email);
+
+    if (profiles && profiles.length > 0) {
+      return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
+    }
+
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -119,10 +130,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    // First check if email exists in profiles
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', email);
+
+    if (!profiles || profiles.length === 0) {
+      return { error: { message: 'Este usuário não existe.' } };
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+
+    // If password is wrong, return specific message
+    if (error && error.message.includes('Invalid login credentials')) {
+      return { error: { message: 'Senha incorreta.' } };
+    }
+
     return { error };
   };
 
