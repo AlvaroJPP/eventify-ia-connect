@@ -88,69 +88,86 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: 'usuario' | 'colaborador') => {
-    // First check if email already exists
-    const { data: existingUser } = await supabase.auth.getUser();
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('email')
-      .eq('email', email);
+    try {
+      // First check if email already exists in profiles table
+      const { data: existingProfiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email)
+        .limit(1);
 
-    if (profiles && profiles.length > 0) {
-      return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
-    }
-
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
-          user_type: userType
-        }
+      if (profileError) {
+        console.error('Error checking existing profiles:', profileError);
       }
-    });
 
-    if (!error) {
-      // Update profile with user type after signup
-      setTimeout(async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await supabase
-            .from('profiles')
-            .update({ user_type: userType, full_name: fullName })
-            .eq('user_id', user.id);
+      if (existingProfiles && existingProfiles.length > 0) {
+        return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
+      }
+
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName,
+            user_type: userType
+          }
         }
-      }, 1000);
-    }
+      });
 
-    return { error };
+      if (error) {
+        // Check if it's an email already registered error from Supabase
+        if (error.message.includes('already registered') || error.message.includes('email address is already')) {
+          return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
+        }
+        return { error };
+      }
+
+      return { error: null };
+    } catch (err: any) {
+      return { error: { message: 'Erro interno. Tente novamente.' } };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    // First check if email exists in profiles
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('email')
-      .eq('email', email);
+    try {
+      // First check if email exists in profiles table
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email)
+        .limit(1);
 
-    if (!profiles || profiles.length === 0) {
-      return { error: { message: 'Este usuário não existe.' } };
+      if (profileError) {
+        console.error('Error checking profiles:', profileError);
+      }
+
+      if (!profiles || profiles.length === 0) {
+        return { error: { message: 'Este usuário não existe.' } };
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        // Check for specific error types
+        if (error.message.includes('Invalid login credentials') || 
+            error.message.includes('invalid_credentials') ||
+            error.message.includes('Email not confirmed')) {
+          return { error: { message: 'Senha incorreta.' } };
+        }
+        return { error };
+      }
+
+      return { error: null };
+    } catch (err: any) {
+      return { error: { message: 'Erro interno. Tente novamente.' } };
     }
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    // If password is wrong, return specific message
-    if (error && error.message.includes('Invalid login credentials')) {
-      return { error: { message: 'Senha incorreta.' } };
-    }
-
-    return { error };
   };
 
   const signInWithGoogle = async () => {
