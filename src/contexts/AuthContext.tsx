@@ -89,24 +89,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string, userType: 'usuario' | 'colaborador') => {
     try {
-      // First check if email already exists in profiles table
-      const { data: existingProfiles, error: profileError } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', email)
-        .limit(1);
-
-      if (profileError) {
-        console.error('Error checking existing profiles:', profileError);
-      }
-
-      if (existingProfiles && existingProfiles.length > 0) {
-        return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
-      }
-
       const redirectUrl = `${window.location.origin}/`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -118,12 +103,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
 
+      // Handle errors from Supabase
       if (error) {
-        // Check if it's an email already registered error from Supabase
-        if (error.message.includes('already registered') || error.message.includes('email address is already')) {
+        if (error.message.includes('already registered') || 
+            error.message.includes('email address is already') ||
+            error.message.includes('already been registered') ||
+            error.message.includes('User already registered')) {
           return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
         }
         return { error };
+      }
+
+      // Additional check: if Supabase returns a user but no confirmation email is sent,
+      // it might be because the user already exists
+      if (data?.user) {
+        // Check if this user already exists in our profiles table
+        try {
+          const { data: existingProfile, error: profileError } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('email', email)
+            .single();
+
+          if (existingProfile && !profileError) {
+            return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
+          }
+        } catch (profileCheckError) {
+          // If we can't check profiles, continue with signup
+          console.log('Could not check existing profiles:', profileCheckError);
+        }
       }
 
       return { error: null };
