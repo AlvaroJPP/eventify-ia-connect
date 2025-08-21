@@ -89,17 +89,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string, userType: 'usuario' | 'colaborador') => {
     try {
-      // Verificar se o email já existe na tabela profiles
-      const { data: existingProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', email.toLowerCase()) // Garantir case insensitive
-        .maybeSingle();
+      // Verificar se o email já existe usando função segura do banco
+      const { data: emailExists, error: emailCheckError } = await supabase
+        .rpc('check_email_exists', { email_to_check: email.toLowerCase() });
 
-      console.log('Verificando email:', email, 'Resultado:', existingProfile, 'Error:', profileError);
+      console.log('Verificando email:', email, 'Existe?', emailExists, 'Error:', emailCheckError);
 
-      if (existingProfile) {
-        console.log('Email já existe na tabela profiles, bloqueando cadastro');
+      if (emailCheckError) {
+        console.error('Erro ao verificar email:', emailCheckError);
+        return { error: { message: 'Erro ao verificar email no sistema.' } };
+      }
+
+      if (emailExists) {
+        console.log('Email já existe no sistema, bloqueando cadastro');
         return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
       }
 
