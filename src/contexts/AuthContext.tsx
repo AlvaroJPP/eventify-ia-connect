@@ -88,6 +88,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: 'usuario' | 'colaborador') => {
+    // Verificar se o email já existe na tabela profiles
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', email)
+      .single();
+
+    if (existingProfile) {
+      return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
+    }
+
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -101,6 +112,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
     });
+
+    // Se o Supabase retornar erro de usuário já existe, retornar mensagem personalizada
+    if (error && error.message.includes('User already registered')) {
+      return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
+    }
 
     if (!error) {
       // Update profile with user type after signup
