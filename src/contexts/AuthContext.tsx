@@ -89,11 +89,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName: string, userType: 'usuario' | 'colaborador') => {
     // Verificar se o email já existe na tabela profiles
-    const { data: existingProfile } = await supabase
+    const { data: existingProfile, error: profileError } = await supabase
       .from('profiles')
       .select('email')
       .eq('email', email)
-      .single();
+      .maybeSingle();
+
+    console.log('Verificando email:', email, 'Resultado:', existingProfile);
 
     if (existingProfile) {
       return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
