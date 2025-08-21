@@ -88,52 +88,75 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, userType: 'usuario' | 'colaborador') => {
-    // Verificar se o email já existe na tabela profiles
-    const { data: existingProfile, error: profileError } = await supabase
-      .from('profiles')
-      .select('email')
-      .eq('email', email)
-      .maybeSingle();
+    try {
+      // Verificar se o email já existe na tabela profiles
+      const { data: existingProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email.toLowerCase()) // Garantir case insensitive
+        .maybeSingle();
 
-    console.log('Verificando email:', email, 'Resultado:', existingProfile);
+      console.log('Verificando email:', email, 'Resultado:', existingProfile, 'Error:', profileError);
 
-    if (existingProfile) {
-      return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
-    }
+      if (existingProfile) {
+        console.log('Email já existe na tabela profiles, bloqueando cadastro');
+        return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
+      }
 
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
-          user_type: userType
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName,
+            user_type: userType
+          }
+        }
+      });
+
+      console.log('Resultado do signUp:', { data, error });
+
+      // Se o Supabase retornar erro de usuário já existe, retornar mensagem personalizada
+      if (error && (error.message.includes('User already registered') || error.message.includes('already been registered'))) {
+        return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
+      }
+
+      // Se retornou dados mas o usuário já existe (signup repetido)
+      if (data?.user && !data.user.email_confirmed_at && !error) {
+        // Verificar se é um signup repetido comparando com profiles existentes
+        const { data: profileCheck } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('email', email)
+          .maybeSingle();
+        
+        if (profileCheck) {
+          console.log('Detectado signup repetido');
+          return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
         }
       }
-    });
 
-    // Se o Supabase retornar erro de usuário já existe, retornar mensagem personalizada
-    if (error && error.message.includes('User already registered')) {
-      return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
+      if (!error) {
+        // Update profile with user type after signup
+        setTimeout(async () => {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            await supabase
+              .from('profiles')
+              .update({ user_type: userType, full_name: fullName })
+              .eq('user_id', user.id);
+          }
+        }, 1000);
+      }
+
+      return { error };
+    } catch (err) {
+      console.error('Erro no signUp:', err);
+      return { error: { message: 'Erro interno no cadastro.' } };
     }
-
-    if (!error) {
-      // Update profile with user type after signup
-      setTimeout(async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await supabase
-            .from('profiles')
-            .update({ user_type: userType, full_name: fullName })
-            .eq('user_id', user.id);
-        }
-      }, 1000);
-    }
-
-    return { error };
   };
 
   const signIn = async (email: string, password: string) => {
