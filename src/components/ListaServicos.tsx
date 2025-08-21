@@ -1,12 +1,21 @@
+// src/components/ListaServicos.tsx
+
+// Importa os hooks useState e useEffect para gerenciar o estado e efeitos colaterais.
 import { useState, useEffect } from "react";
+// Importa componentes de UI personalizados.
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+// Importa o hook useToast para exibir notificações.
 import { useToast } from "@/hooks/use-toast";
+// Importa o cliente Supabase para interagir com o banco de dados.
 import { supabase } from "@/integrations/supabase/client";
+// Importa o hook useAuth para acessar o contexto de autenticação.
 import { useAuth } from "@/contexts/AuthContext";
+// Importa ícones da biblioteca lucide-react.
 import { Users, DollarSign, User, Phone, ShoppingCart } from "lucide-react";
 
+// Define a interface para um serviço.
 interface Servico {
   id: string;
   nome_servico: string;
@@ -17,36 +26,76 @@ interface Servico {
   created_at: string;
 }
 
+/**
+ * Componente que exibe uma lista de serviços cadastrados,
+ * com atualizações em tempo real diretamente do Supabase.
+ */
 export const ListaServicos = () => {
+  // Obtém a função de toast para exibir notificações.
   const { toast } = useToast();
+  // Obtém o usuário e o perfil do contexto de autenticação.
   const { user, profile } = useAuth();
+  // Estado para armazenar a lista de serviços.
   const [servicos, setServicos] = useState<Servico[]>([]);
+  // Estado para controlar o status de carregamento.
   const [loading, setLoading] = useState(true);
 
+  // Efeito para buscar os dados iniciais e se inscrever para atualizações.
   useEffect(() => {
-    fetchServicos();
-  }, []);
+    console.log('ListaServicos: Componente montado. Iniciando busca de dados.');
 
-  const fetchServicos = async () => {
-    try {
+    /**
+     * Busca os serviços no banco de dados e atualiza o estado.
+     */
+    const fetchServicos = async () => {
+      console.log('ListaServicos: Buscando dados iniciais...');
       const { data, error } = await supabase
         .from('servicos')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Erro ao carregar serviços:', error);
+        console.error('ListaServicos: Erro ao carregar serviços:', error);
       } else {
+        console.log(`ListaServicos: Dados recebidos. Quantidade: ${data.length}`);
         setServicos(data || []);
       }
-    } catch (error) {
-      console.error('Erro inesperado:', error);
-    } finally {
+      // Garante que o loading seja desativado após a primeira busca.
       setLoading(false);
-    }
-  };
+      console.log('ListaServicos: Carregamento inicial finalizado.');
+    };
 
+    // Chama a função para buscar os dados iniciais.
+    fetchServicos();
+
+    // Configura a subscrição em tempo real do Supabase.
+    const channel = supabase
+      .channel('servicos-realtime-channel')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'servicos' },
+        (payload) => {
+          console.log('ListaServicos: Alteração em tempo real recebida!', payload);
+          // Quando uma alteração ocorre, busca todos os serviços novamente.
+          fetchServicos();
+        }
+      )
+      .subscribe((status) => {
+        console.log('ListaServicos: Status da subscrição em tempo real:', status);
+      });
+
+    // Função de limpeza: remove a subscrição quando o componente é desmontado.
+    return () => {
+      console.log('ListaServicos: Desmontando componente e removendo subscrição.');
+      supabase.removeChannel(channel);
+    };
+  }, []); // O array vazio assegura que este efeito rode apenas uma vez.
+
+  /**
+   * Adiciona um serviço ao carrinho de compras.
+   */
   const addToCart = async (servicoId: string) => {
+    // ... (código do addToCart permanece o mesmo)
     if (!user) {
       toast({
         title: "Login necessário",
@@ -91,6 +140,9 @@ export const ListaServicos = () => {
     }
   };
 
+  /**
+   * Formata um número para o formato de moeda brasileira.
+   */
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -98,6 +150,7 @@ export const ListaServicos = () => {
     }).format(price);
   };
 
+  // Exibe uma mensagem de carregamento.
   if (loading) {
     return (
       <Card>
@@ -111,6 +164,7 @@ export const ListaServicos = () => {
     );
   }
 
+  // Renderiza a lista de serviços.
   return (
     <Card>
       <CardHeader>
@@ -146,12 +200,10 @@ export const ListaServicos = () => {
                   {servico.descricao_servico && (
                     <p className="text-sm">{servico.descricao_servico}</p>
                   )}
-                  
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <User className="w-4 h-4" />
                     <span>{servico.responsavel_servico}</span>
                   </div>
-                  
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Phone className="w-4 h-4" />
                     <span>{servico.contato_servico}</span>

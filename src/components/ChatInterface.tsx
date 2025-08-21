@@ -1,11 +1,16 @@
+// Importa os hooks useState e useEffect para gerenciar o estado e efeitos colaterais.
 import { useState, useEffect } from "react";
+// Importa componentes de UI personalizados.
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+// Importa o cliente Supabase para interagir com o banco de dados.
 import { supabase } from "@/integrations/supabase/client";
+// Importa ícones da biblioteca lucide-react.
 import { MessageCircle, Send, Bot, User } from "lucide-react";
 
+// Define a interface para uma mensagem do chat.
 interface Message {
   id: string;
   type: 'user' | 'bot';
@@ -13,7 +18,11 @@ interface Message {
   timestamp: Date;
 }
 
+/**
+ * Componente que implementa a interface de chat com o assistente inteligente.
+ */
 export const ChatInterface = () => {
+  // Estado para armazenar as mensagens do chat.
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -22,13 +31,20 @@ export const ChatInterface = () => {
       timestamp: new Date()
     }
   ]);
+  // Estado para armazenar o texto de entrada do usuário.
   const [input, setInput] = useState('');
+  // Estado para controlar o status de carregamento.
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Processa a consulta do usuário e retorna uma resposta do bot.
+   * @param query - A consulta do usuário.
+   * @returns A resposta do bot.
+   */
   const processUserQuery = async (query: string): Promise<string> => {
     const lowerQuery = query.toLowerCase();
     
-    // Consultas sobre eventos
+    // Se a consulta for sobre eventos, busca os eventos no banco de dados.
     if (lowerQuery.includes('evento') || lowerQuery.includes('data') || lowerQuery.includes('local')) {
       try {
         const { data: eventos, error } = await supabase
@@ -64,7 +80,7 @@ export const ChatInterface = () => {
       }
     }
     
-    // Consultas sobre serviços
+    // Se a consulta for sobre serviços, busca os serviços no banco de dados.
     if (lowerQuery.includes('serviço') || lowerQuery.includes('servico') || lowerQuery.includes('preço') || lowerQuery.includes('preco')) {
       try {
         const { data: servicos, error } = await supabase
@@ -101,7 +117,7 @@ export const ChatInterface = () => {
       }
     }
     
-    // Resposta padrão para outras consultas
+    // Resposta padrão para outras consultas.
     return `Entendi sua pergunta sobre "${query}". Atualmente posso ajudá-lo com informações sobre:
 
 • **Eventos cadastrados** - Digite "eventos" ou "mostrar eventos"
@@ -115,6 +131,9 @@ Você também pode fazer perguntas específicas como:
 Como posso ajudá-lo?`;
   };
 
+  /**
+   * Envia a mensagem do usuário e obtém a resposta do bot.
+   */
   const handleSendMessage = async () => {
     if (!input.trim() || loading) return;
 
@@ -153,6 +172,10 @@ Como posso ajudá-lo?`;
     }
   };
 
+  /**
+   * Lida com o pressionar da tecla Enter no campo de entrada.
+   * @param e - O evento de teclado.
+   */
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -160,6 +183,7 @@ Como posso ajudá-lo?`;
     }
   };
 
+  // Renderiza a interface de chat.
   return (
     <Card className="max-w-4xl mx-auto">
       <CardHeader>
@@ -173,7 +197,7 @@ Como posso ajudá-lo?`;
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {/* Chat Messages */}
+          {/* Área de exibição das mensagens */}
           <ScrollArea className="h-96 border rounded-lg p-4">
             <div className="space-y-4">
               {messages.map((message) => (
@@ -234,7 +258,7 @@ Como posso ajudá-lo?`;
             </div>
           </ScrollArea>
 
-          {/* Input Area */}
+          {/* Área de entrada de texto */}
           <div className="flex gap-2">
             <Input
               value={input}
@@ -248,7 +272,7 @@ Como posso ajudá-lo?`;
             </Button>
           </div>
 
-          {/* Quick Actions */}
+          {/* Ações rápidas */}
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
