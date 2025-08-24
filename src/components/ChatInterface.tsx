@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { MessageCircle, Send, Bot, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Message {
   id: string;
@@ -14,6 +15,7 @@ interface Message {
 }
 
 export const ChatInterface = () => {
+  const { user, profile } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -24,6 +26,67 @@ export const ChatInterface = () => {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Função para enviar dados para o webhook do n8n e receber resposta
+  const sendToWebhook = async (message: string, userInfo: any) => {
+    try {
+      const webhookData = {
+        message,
+        user: {
+          id: userInfo?.id,
+          email: userInfo?.email,
+          name: profile?.full_name,
+          user_type: profile?.user_type
+        },
+        timestamp: new Date().toISOString(),
+        platform: 'eventify-chat'
+      };
+
+      const response = await fetch('https://mammoth-healthy-coral.ngrok-free.app/webhook/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify(webhookData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Webhook error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Webhook enviado com sucesso:', result);
+      
+      // Extrair a resposta do agente do resultado
+      // Ajuste conforme a estrutura de resposta do seu n8n
+      let agentResponse = '';
+      
+      if (result.response) {
+        agentResponse = result.response;
+      } else if (result.message) {
+        agentResponse = result.message;
+      } else if (result.text) {
+        agentResponse = result.text;
+      } else if (result.output) {
+        agentResponse = result.output;
+      } else if (typeof result === 'string') {
+        agentResponse = result;
+      } else {
+        // Se não encontrou uma resposta clara, usar uma mensagem padrão
+        agentResponse = 'Recebi sua mensagem e estou processando...';
+      }
+      
+      return {
+        success: true,
+        data: result,
+        agentResponse: agentResponse
+      };
+    } catch (error) {
+      console.error('Erro ao enviar webhook:', error);
+      throw error;
+    }
+  };
 
   const processUserQuery = async (query: string): Promise<string> => {
     const lowerQuery = query.toLowerCase();
@@ -126,11 +189,30 @@ Como posso ajudá-lo?`;
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
     setLoading(true);
 
     try {
-      const botResponse = await processUserQuery(input);
+      let botResponse = '';
+      let webhookSuccess = false;
+
+      // Tentar enviar para o webhook do n8n primeiro
+      try {
+        const webhookResult = await sendToWebhook(currentInput, user);
+        if (webhookResult.success && webhookResult.agentResponse) {
+          botResponse = webhookResult.agentResponse;
+          webhookSuccess = true;
+        }
+      } catch (webhookError) {
+        console.warn('Webhook falhou, usando processamento local:', webhookError);
+        webhookSuccess = false;
+      }
+
+      // Se o webhook falhou, usar processamento local como fallback
+      if (!webhookSuccess || !botResponse.trim()) {
+        botResponse = await processUserQuery(currentInput);
+      }
       
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
