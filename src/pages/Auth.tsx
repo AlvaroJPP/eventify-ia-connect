@@ -1,24 +1,39 @@
+// Importa o hook useState para gerenciar o estado do componente.
 import { useState } from 'react';
+// Importa o componente Navigate para redirecionar o usuário.
 import { Navigate } from 'react-router-dom';
+// Importa componentes de UI personalizados.
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// Importa o hook useAuth para acessar o contexto de autenticação.
 import { useAuth } from '@/contexts/AuthContext';
+// Importa o hook useToast para exibir notificações.
 import { useToast } from '@/hooks/use-toast';
 
+/**
+ * Componente de autenticação que lida com o login e cadastro de usuários.
+ */
 export default function Auth() {
+  // Obtém o estado de autenticação e as funções do contexto.
   const { user, signIn, signUp, signInWithGoogle, loading } = useAuth();
+  // Obtém a função de toast para exibir notificações.
   const { toast } = useToast();
+  // Estado para controlar o status de envio do formulário.
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Redirect if already authenticated
+  // Redireciona para a página inicial se o usuário já estiver autenticado.
   if (user && !loading) {
     return <Navigate to="/" replace />;
   }
 
+  /**
+   * Lida com o envio do formulário de login.
+   * @param e - O evento do formulário.
+   */
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -27,8 +42,10 @@ export default function Auth() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
+    // Tenta fazer o login do usuário.
     const { error } = await signIn(email, password);
 
+    // Exibe uma notificação de erro ou sucesso.
     if (error) {
       toast({
         title: 'Erro no login',
@@ -45,6 +62,10 @@ export default function Auth() {
     setIsSubmitting(false);
   };
 
+  /**
+   * Lida com o envio do formulário de cadastro.
+   * @param e - O evento do formulário.
+   */
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -55,8 +76,10 @@ export default function Auth() {
     const fullName = formData.get('fullName') as string;
     const userType = formData.get('userType') as 'usuario' | 'colaborador';
 
+    // Tenta cadastrar o usuário.
     const { error } = await signUp(email, password, fullName, userType);
 
+    // Exibe uma notificação de erro ou sucesso.
     if (error) {
       toast({
         title: 'Erro no cadastro',
@@ -73,9 +96,13 @@ export default function Auth() {
     setIsSubmitting(false);
   };
 
+  /**
+   * Lida com o login usando o Google.
+   */
   const handleGoogleSignIn = async () => {
     const { error } = await signInWithGoogle();
     
+    // Exibe uma notificação de erro, se houver.
     if (error) {
       toast({
         title: 'Erro no login com Google',
@@ -85,6 +112,7 @@ export default function Auth() {
     }
   };
 
+  // Exibe um spinner de carregamento enquanto o estado de autenticação é verificado.
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -96,6 +124,7 @@ export default function Auth() {
     );
   }
 
+  // Renderiza o formulário de autenticação.
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">

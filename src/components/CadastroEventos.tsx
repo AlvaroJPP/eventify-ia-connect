@@ -1,16 +1,27 @@
+// Importa o hook useState para gerenciar o estado do componente.
 import { useState } from "react";
+// Importa componentes de UI personalizados.
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+// Importa o hook useToast para exibir notificações.
 import { useToast } from "@/hooks/use-toast";
+// Importa o cliente Supabase para interagir com o banco de dados.
 import { supabase } from "@/integrations/supabase/client";
+// Importa ícones da biblioteca lucide-react.
 import { Calendar, MapPin, User, Phone } from "lucide-react";
 
+/**
+ * Componente para cadastrar novos eventos.
+ */
 export const CadastroEventos = () => {
+  // Obtém a função de toast para exibir notificações.
   const { toast } = useToast();
+  // Estado para controlar o status de carregamento.
   const [loading, setLoading] = useState(false);
+  // Estado para armazenar os dados do formulário.
   const [formData, setFormData] = useState({
     nome_evento: "",
     data_evento: "",
@@ -20,13 +31,19 @@ export const CadastroEventos = () => {
     contato_evento: ""
   });
 
+  /**
+   * Lida com o envio do formulário de cadastro de eventos.
+   * @param e - O evento do formulário.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Obtém o usuário autenticado.
       const { data: { user } } = await supabase.auth.getUser();
       
+      // Se não houver usuário, exibe uma notificação de erro.
       if (!user) {
         toast({
           title: "Erro de autenticação",
@@ -37,10 +54,12 @@ export const CadastroEventos = () => {
         return;
       }
 
+      // Insere os dados do evento no banco de dados.
       const { error } = await supabase
         .from('eventos')
         .insert([{ ...formData, user_id: user.id }]);
 
+      // Exibe uma notificação de erro ou sucesso.
       if (error) {
         toast({
           title: "Erro ao cadastrar evento",
@@ -53,7 +72,7 @@ export const CadastroEventos = () => {
           description: "O evento foi adicionado à base de dados."
         });
         
-        // Limpar formulário
+        // Limpa o formulário após o sucesso.
         setFormData({
           nome_evento: "",
           data_evento: "",
@@ -74,10 +93,16 @@ export const CadastroEventos = () => {
     }
   };
 
+  /**
+   * Atualiza o estado do formulário quando um campo de entrada muda.
+   * @param field - O nome do campo.
+   * @param value - O novo valor do campo.
+   */
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Renderiza o formulário de cadastro de eventos.
   return (
     <Card>
       <CardHeader>

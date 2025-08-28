@@ -15,7 +15,12 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, userType: 'usuario' | 'colaborador') => Promise<{ error: any }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string,
+    userType: 'usuario' | 'colaborador'
+  ) => Promise<{ data: any; error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -38,149 +43,134 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+  try {
+    console.log("🔎 Buscando perfil do usuário:", userId);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
 
-      if (error) throw error;
-      setProfile(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+    if (error || !data) {
+      console.warn("⚠️ Nenhum perfil encontrado para:", userId, error);
       setProfile(null);
+      return;
     }
-  };
+    console.log("✅ Perfil carregado:", data);
+    setProfile(data);
+  } catch (error) {
+    console.error('❌ Erro ao buscar perfil:', error);
+    setProfile(null);
+  }
+};
 
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-        }
-        
-        setLoading(false);
-      }
-    );
+useEffect(() => {
+  console.log("🚀 Inicializando AuthProvider...");
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+  const { data } = supabase.auth.onAuthStateChange(
+    async (_event, session) => {
+      console.log("🔄 Estado de auth mudou:", _event, session);
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
-        fetchProfile(session.user.id);
+        await fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
       }
-      
       setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const signUp = async (email: string, password: string, fullName: string, userType: 'usuario' | 'colaborador') => {
-    try {
-      // Verificar se o email já existe usando função segura do banco
-      const { data: emailExists, error: emailCheckError } = await supabase
-        .rpc('check_email_exists', { email_to_check: email.toLowerCase() });
-
-      console.log('Verificando email:', email, 'Existe?', emailExists, 'Error:', emailCheckError);
-
-      if (emailCheckError) {
-        console.error('Erro ao verificar email:', emailCheckError);
-        return { error: { message: 'Erro ao verificar email no sistema.' } };
-      }
-
-      if (emailExists) {
-        console.log('Email já existe no sistema, bloqueando cadastro');
-        return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
-      }
-
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            full_name: fullName,
-            user_type: userType
-          }
-        }
-      });
-
-      console.log('Resultado do signUp:', { data, error });
-
-      // Se o Supabase retornar erro de usuário já existe, retornar mensagem personalizada
-      if (error && (error.message.includes('User already registered') || error.message.includes('already been registered'))) {
-        return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
-      }
-
-      // Se retornou dados mas o usuário já existe (signup repetido)
-      if (data?.user && !data.user.email_confirmed_at && !error) {
-        // Verificar se é um signup repetido comparando com profiles existentes
-        const { data: profileCheck } = await supabase
-          .from('profiles')
-          .select('email')
-          .eq('email', email)
-          .maybeSingle();
-        
-        if (profileCheck) {
-          console.log('Detectado signup repetido');
-          return { error: { message: 'Este e-mail já está cadastrado no sistema.' } };
-        }
-      }
-
-      if (!error) {
-        // Update profile with user type after signup
-        setTimeout(async () => {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            await supabase
-              .from('profiles')
-              .update({ user_type: userType, full_name: fullName })
-              .eq('user_id', user.id);
-          }
-        }, 1000);
-      }
-
-      return { error };
-    } catch (err) {
-      console.error('Erro no signUp:', err);
-      return { error: { message: 'Erro interno no cadastro.' } };
     }
-  };
+  );
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+  supabase.auth.getSession().then(async ({ data: { session } }) => {
+    console.log("📦 Sessão inicial carregada:", session);
+    setSession(session);
+    setUser(session?.user ?? null);
+
+    if (session?.user) {
+      await fetchProfile(session.user.id);
+    }
+    setLoading(false);
+  });
+
+  return () => {
+    console.log("🧹 Limpando listener de auth...");
+    data.subscription?.unsubscribe();
   };
+}, []);
+
+const signUp = async (
+  email: string,
+  password: string,
+  fullName: string,
+  userType: 'usuario' | 'colaborador'
+) => {
+  console.log("📝 Tentando cadastro:", email, fullName, userType);
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+        user_type: userType,
+      },
+    },
+  });
+
+  if (error) {
+    console.error("❌ Erro no cadastro:", error);
+    return { data: null, error };
+  }
+
+  if (data.user && data.user.identities && data.user.identities.length === 0) {
+    console.warn("⚠️ E-mail já existente:", email);
+    return {
+      data: null,
+      error: {
+        message:
+          'Este e-mail já está cadastrado. Verifique sua caixa de entrada para o e-mail de confirmação.',
+      },
+    };
+  }
+
+  if (data.user) {
+    console.log("✅ Usuário cadastrado:", data.user);
+    return { data, error: null };
+  }
+
+  console.error("❌ Erro inesperado no cadastro:", data);
+  return {
+    data: null,
+    error: { message: 'Ocorreu um erro inesperado durante o cadastro.' },
+  };
+};
+
+const signIn = async (email: string, password: string) => {
+  console.log("🔑 Tentando login:", email);
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  if (error) console.error("❌ Erro no login:", error);
+  else console.log("✅ Login bem-sucedido");
+  return { error };
+};
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/`,
-      }
+      },
     });
     return { error };
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
+    setProfile(null);
   };
 
   const value = {

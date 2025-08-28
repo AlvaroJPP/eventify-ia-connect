@@ -1,12 +1,19 @@
+// Importa os hooks useState e useEffect para gerenciar o estado e efeitos colaterais.
 import { useState, useEffect } from "react";
+// Importa componentes de UI personalizados.
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+// Importa o hook useToast para exibir notificações.
 import { useToast } from "@/hooks/use-toast";
+// Importa o cliente Supabase para interagir com o banco de dados.
 import { supabase } from "@/integrations/supabase/client";
+// Importa o hook useAuth para acessar o contexto de autenticação.
 import { useAuth } from "@/contexts/AuthContext";
+// Importa ícones da biblioteca lucide-react.
 import { ShoppingCart, Plus, Minus, Trash2, CreditCard } from "lucide-react";
 
+// Define a interface para um item do carrinho.
 interface CartItem {
   id: string;
   quantity: number;
@@ -19,18 +26,29 @@ interface CartItem {
   };
 }
 
+/**
+ * Componente que exibe o carrinho de compras do usuário.
+ */
 export const CarrinhoCompras = () => {
+  // Obtém a função de toast para exibir notificações.
   const { toast } = useToast();
+  // Obtém o usuário autenticado do contexto de autenticação.
   const { user } = useAuth();
+  // Estado para armazenar os itens do carrinho.
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  // Estado para controlar o status de carregamento.
   const [loading, setLoading] = useState(false);
 
+  // Busca os itens do carrinho quando o componente é montado ou o usuário muda.
   useEffect(() => {
     if (user) {
       fetchCartItems();
     }
   }, [user]);
 
+  /**
+   * Busca os itens do carrinho do usuário no banco de dados.
+   */
   const fetchCartItems = async () => {
     try {
       const { data, error } = await supabase
@@ -55,6 +73,11 @@ export const CarrinhoCompras = () => {
     }
   };
 
+  /**
+   * Atualiza a quantidade de um item no carrinho.
+   * @param itemId - O ID do item a ser atualizado.
+   * @param newQuantity - A nova quantidade do item.
+   */
   const updateQuantity = async (itemId: string, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeItem(itemId);
@@ -78,6 +101,10 @@ export const CarrinhoCompras = () => {
     }
   };
 
+  /**
+   * Remove um item do carrinho.
+   * @param itemId - O ID do item a ser removido.
+   */
   const removeItem = async (itemId: string) => {
     try {
       const { error } = await supabase
@@ -101,6 +128,9 @@ export const CarrinhoCompras = () => {
     }
   };
 
+  /**
+   * Finaliza a compra, criando um pedido e limpando o carrinho.
+   */
   const checkout = async () => {
     if (cartItems.length === 0) return;
 
@@ -110,7 +140,7 @@ export const CarrinhoCompras = () => {
         sum + (item.servicos.preco_servico * item.quantity), 0
       );
 
-      // Create order
+      // Cria um novo pedido no banco de dados.
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -123,7 +153,7 @@ export const CarrinhoCompras = () => {
 
       if (orderError) throw orderError;
 
-      // Create order items
+      // Cria os itens do pedido.
       const orderItems = cartItems.map(item => ({
         order_id: order.id,
         servico_id: item.servicos.id,
@@ -137,7 +167,7 @@ export const CarrinhoCompras = () => {
 
       if (itemsError) throw itemsError;
 
-      // Clear cart
+      // Limpa o carrinho de compras.
       const { error: clearError } = await supabase
         .from('cart_items')
         .delete()
@@ -161,10 +191,12 @@ export const CarrinhoCompras = () => {
     }
   };
 
+  // Calcula o valor total do carrinho.
   const total = cartItems.reduce((sum, item) => 
     sum + (item.servicos.preco_servico * item.quantity), 0
   );
 
+  // Renderiza o componente do carrinho de compras.
   return (
     <Card>
       <CardHeader>

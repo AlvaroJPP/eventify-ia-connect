@@ -1,28 +1,33 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Users, MessageCircle, Plus, Menu, LogOut, ShoppingCart } from "lucide-react";
-import { useState } from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { CadastroEventos } from "@/components/CadastroEventos";
-import { CadastroServicos } from "@/components/CadastroServicos";
-import { ListaEventos } from "@/components/ListaEventos";
-import { ListaServicos } from "@/components/ListaServicos";
-import { ChatInterface } from "@/components/ChatInterface";
-import { CarrinhoCompras } from "@/components/CarrinhoCompras";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button"; // Componente de botão
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"; // Componentes de cartão
+import { Calendar, Users, MessageCircle, Plus, Menu, LogOut, ShoppingCart } from "lucide-react"; // Ícones
+import { useState } from "react"; // Hook para gerenciar estado
+import { Navigate } from "react-router-dom"; // Componente para redirecionamento
+import { useAuth } from "@/contexts/AuthContext"; // Hook para autenticação
+import { ThemeToggle } from "@/components/ui/theme-toggle"; // Botão de troca de tema
+import { CadastroEventos } from "@/components/CadastroEventos"; // Componente de cadastro de eventos
+import { CadastroServicos } from "@/components/CadastroServicos"; // Componente de cadastro de serviços
+import { ListaEventos } from "@/components/ListaEventos"; // Componente de listagem de eventos
+import { ListaServicos } from "@/components/ListaServicos"; // Componente de listagem de serviços
+import { ChatInterface } from "@/components/ChatInterface"; // Componente de chat
+import { CarrinhoCompras } from "@/components/CarrinhoCompras"; // Componente do carrinho de compras
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"; // Componente de menu lateral
 
+// Componente principal da página inicial
 const Index = () => {
+  // Obtém informações de autenticação do usuário
   const { user, profile, loading, signOut } = useAuth();
+  // Estado para controlar a aba ativa
   const [activeTab, setActiveTab] = useState<'home' | 'eventos' | 'servicos' | 'carrinho' | 'chat'>('home');
+  // Estado para controlar o menu móvel
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Redirect if not authenticated
+  // Redireciona para a página de autenticação se o usuário não estiver logado
   if (!loading && !user) {
     return <Navigate to="/auth" replace />;
   }
 
+  // Exibe uma mensagem de carregamento enquanto os dados do usuário são carregados
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -34,19 +39,22 @@ const Index = () => {
     );
   }
 
+  // Verifica se o usuário é um colaborador para permitir a criação de conteúdo
   const canCreateContent = profile?.user_type === 'colaborador';
 
+  // Função para fazer logout do usuário
   const handleSignOut = async () => {
     await signOut();
   };
 
+  // Renderiza a página principal
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Cabeçalho */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4">
           <nav className="flex items-center justify-between">
-            {/* Mobile Menu */}
+            {/* Menu para dispositivos móveis */}
             <div className="flex items-center gap-4 md:hidden">
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
@@ -56,6 +64,7 @@ const Index = () => {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-80">
                   <div className="flex flex-col gap-4 mt-8">
+                    {/* Botões do menu móvel */}
                     <Button 
                       variant={activeTab === 'home' ? 'default' : 'ghost'} 
                       onClick={() => {
@@ -88,6 +97,7 @@ const Index = () => {
                       <Users className="w-4 h-4 mr-2" />
                       Serviços
                     </Button>
+                    {/* Exibe o botão do carrinho apenas para usuários */}
                     {profile?.user_type === 'usuario' && (
                       <Button 
                         variant={activeTab === 'carrinho' ? 'default' : 'ghost'} 
@@ -112,6 +122,7 @@ const Index = () => {
                       <MessageCircle className="w-4 h-4 mr-2" />
                       Chat
                     </Button>
+                    {/* Informações do usuário e botão de sair */}
                     <div className="border-t pt-4 mt-4">
                       <p className="text-sm text-muted-foreground mb-2">
                         Olá, {profile?.full_name || user?.email}
@@ -131,9 +142,10 @@ const Index = () => {
               <h1 className="text-lg font-bold text-primary">COP30 Hub Belém</h1>
             </div>
 
-            {/* Desktop Header */}
+            {/* Cabeçalho para desktop */}
             <h1 className="hidden md:block text-2xl font-bold text-primary">COP30 Hub Belém</h1>
 
+            {/* Menu para desktop */}
             <div className="hidden md:flex gap-4">
               <Button 
                 variant={activeTab === 'home' ? 'default' : 'ghost'} 
@@ -155,6 +167,7 @@ const Index = () => {
                 <Users className="w-4 h-4 mr-2" />
                 Serviços
               </Button>
+              {/* Exibe o botão do carrinho apenas para usuários */}
               {profile?.user_type === 'usuario' && (
                 <Button 
                   variant={activeTab === 'carrinho' ? 'default' : 'ghost'} 
@@ -173,7 +186,7 @@ const Index = () => {
               </Button>
             </div>
 
-            {/* User Menu - Desktop */}
+            {/* Menu do usuário para desktop */}
             <div className="hidden md:flex items-center gap-4">
               <ThemeToggle />
               <div className="text-right">
@@ -188,7 +201,7 @@ const Index = () => {
               </Button>
             </div>
 
-            {/* Mobile User Button */}
+            {/* Botão de usuário para dispositivos móveis */}
             <div className="md:hidden flex items-center gap-2">
               <ThemeToggle />
               <Button variant="outline" size="sm" onClick={handleSignOut}>
@@ -199,11 +212,12 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Content */}
+      {/* Conteúdo principal */}
       <main className="container mx-auto px-4 py-8">
+        {/* Seção da página inicial */}
         {activeTab === 'home' && (
           <div className="space-y-12">
-            {/* Hero Section */}
+            {/* Seção de destaque */}
             <section className="text-center space-y-6">
               <h2 className="text-4xl font-bold text-foreground">
                 Organize seus Eventos e Serviços
@@ -213,6 +227,7 @@ const Index = () => {
                 Cadastre, organize e encontre tudo em um só lugar.
               </p>
               <div className="flex gap-4 justify-center">
+                {/* Botões de ação para colaboradores */}
                 {canCreateContent && (
                   <Button size="lg" onClick={() => setActiveTab('eventos')}>
                     <Plus className="w-5 h-5 mr-2" />
@@ -232,7 +247,7 @@ const Index = () => {
               </div>
             </section>
 
-            {/* Features */}
+            {/* Seção de funcionalidades */}
             <section className="grid md:grid-cols-3 gap-8">
               <Card>
                 <CardHeader>
@@ -288,6 +303,7 @@ const Index = () => {
           </div>
         )}
 
+        {/* Seção de eventos */}
         {activeTab === 'eventos' && (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -306,6 +322,7 @@ const Index = () => {
           </div>
         )}
 
+        {/* Seção de serviços */}
         {activeTab === 'servicos' && (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -324,6 +341,7 @@ const Index = () => {
           </div>
         )}
 
+        {/* Seção do carrinho de compras */}
         {activeTab === 'carrinho' && (
           <div className="space-y-8">
             <div className="text-center space-y-4">
@@ -334,6 +352,7 @@ const Index = () => {
           </div>
         )}
 
+        {/* Seção do chat */}
         {activeTab === 'chat' && (
           <div className="space-y-8">
             <div className="text-center space-y-4">
