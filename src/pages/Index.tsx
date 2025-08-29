@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Users, MessageCircle, Plus, Menu, LogOut, ShoppingCart, Star, CheckCircle, ArrowRight, Sparkles, MapPin, Heart } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Calendar, Users, MessageCircle, Plus, Menu, LogOut, ShoppingCart, Star, CheckCircle, ArrowRight, Sparkles, MapPin, Heart, UserPlus } from "lucide-react";
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { CadastroEventos } from "@/components/CadastroEventos";
@@ -21,11 +22,10 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<'home' | 'eventos' | 'servicos' | 'carrinho' | 'chat'>('home');
   // Estado para controlar o menu móvel
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Redireciona para a página de autenticação se o usuário não estiver logado
-  if (!loading && !user) {
-    return <Navigate to="/auth" replace />;
-  }
+  // Estado para controlar o modal de cadastro de eventos
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  // Estado para controlar o modal de cadastro de serviços
+  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
 
   // Exibe uma mensagem de carregamento enquanto os dados do usuário são carregados
   if (loading) {
@@ -41,6 +41,7 @@ const Index = () => {
 
   // Verifica se o usuário é um colaborador para permitir a criação de conteúdo
   const canCreateContent = profile?.user_type === 'colaborador';
+  const isLoggedIn = !!user;
 
   // Função para fazer logout do usuário
   const handleSignOut = async () => {
@@ -98,8 +99,8 @@ const Index = () => {
                         <Users className="w-4 h-4 mr-2" />
                         Serviços
                       </Button>
-                      {/* Exibe o botão do carrinho apenas para usuários */}
-                      {profile?.user_type === 'usuario' && (
+                      {/* Exibe o botão do carrinho apenas para usuários logados */}
+                      {isLoggedIn && profile?.user_type === 'usuario' && (
                         <Button 
                           variant={activeTab === 'carrinho' ? 'default' : 'ghost'} 
                           onClick={() => {
@@ -123,18 +124,35 @@ const Index = () => {
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Chat
                       </Button>
-                      {/* Informações do usuário e botão de sair */}
+                      
+                      {/* Seção de autenticação */}
                       <div className="border-t pt-4 mt-4">
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Olá, {profile?.full_name || user?.email}
-                        </p>
-                        <p className="text-xs text-muted-foreground mb-4">
-                          Tipo: {profile?.user_type === 'colaborador' ? 'Colaborador' : 'Usuário'}
-                        </p>
-                        <Button variant="outline" onClick={handleSignOut} className="w-full justify-start">
-                          <LogOut className="w-4 h-4 mr-2" />
-                          Sair
-                        </Button>
+                        {isLoggedIn ? (
+                          <>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              Olá, {profile?.full_name || user?.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground mb-4">
+                              Tipo: {profile?.user_type === 'colaborador' ? 'Colaborador' : 'Usuário'}
+                            </p>
+                            <Button variant="outline" onClick={handleSignOut} className="w-full justify-start">
+                              <LogOut className="w-4 h-4 mr-2" />
+                              Sair
+                            </Button>
+                          </>
+                        ) : (
+                          <div className="space-y-2">
+                            <p className="text-sm text-muted-foreground mb-4">
+                              Entre para acessar todas as funcionalidades
+                            </p>
+                            <Link to="/auth">
+                              <Button className="w-full justify-start">
+                                <UserPlus className="w-4 h-4 mr-2" />
+                                Entrar / Cadastrar
+                              </Button>
+                            </Link>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -169,8 +187,8 @@ const Index = () => {
                 <Users className="w-4 h-4 mr-2" />
                 Serviços
               </Button>
-              {/* Exibe o botão do carrinho apenas para usuários */}
-              {profile?.user_type === 'usuario' && (
+              {/* Exibe o botão do carrinho apenas para usuários logados */}
+              {isLoggedIn && profile?.user_type === 'usuario' && (
                 <Button 
                   variant={activeTab === 'carrinho' ? 'default' : 'ghost'} 
                   onClick={() => setActiveTab('carrinho')}
@@ -191,24 +209,43 @@ const Index = () => {
             {/* Menu do usuário para desktop */}
             <div className="hidden md:flex items-center gap-4">
               <ThemeToggle />
-              <div className="text-right">
-                <p className="text-sm font-medium">{profile?.full_name || user?.email}</p>
-                <p className="text-xs text-muted-foreground">
-                  {profile?.user_type === 'colaborador' ? 'Colaborador' : 'Usuário'}
-                </p>
-              </div>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sair
-              </Button>
+              {isLoggedIn ? (
+                <>
+                  <div className="text-right">
+                    <p className="text-sm font-medium">{profile?.full_name || user?.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {profile?.user_type === 'colaborador' ? 'Colaborador' : 'Usuário'}
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sair
+                  </Button>
+                </>
+              ) : (
+                <Link to="/auth">
+                  <Button>
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Entrar
+                  </Button>
+                </Link>
+              )}
             </div>
 
-            {/* Botão de usuário para dispositivos móveis */}
+            {/* Botões para dispositivos móveis */}
             <div className="md:hidden flex items-center gap-2">
               <ThemeToggle />
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4" />
-              </Button>
+              {isLoggedIn ? (
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              ) : (
+                <Link to="/auth">
+                  <Button size="sm">
+                    <UserPlus className="w-4 h-4" />
+                  </Button>
+                </Link>
+              )}
             </div>
           </nav>
         </div>
@@ -234,7 +271,8 @@ const Index = () => {
                   </span>
                 </h1>
                 <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto opacity-90 leading-relaxed">
-                  A plataforma que une tradição e inovação para a COP30 no Pará. Descubra eventos exclusivos, veja serviços locais, enquanto interage com nossa IA inteligente.
+                  A plataforma que une tradição e inovação. Encontre eventos únicos, 
+                  contrate serviços locais e converse com nossa IA inteligente.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   <Button 
@@ -454,16 +492,35 @@ const Index = () => {
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold">Eventos</h2>
               <p className="text-muted-foreground">
-                {canCreateContent 
-                  ? "Cadastre novos eventos ou visualize os existentes"
-                  : "Explore eventos disponíveis"
-                }
+                Descubra eventos incríveis acontecendo no Pará
               </p>
             </div>
-            <div className="grid lg:grid-cols-2 gap-8">
-              {canCreateContent && <CadastroEventos />}
-              <ListaEventos />
-            </div>
+
+            {/* Botão para cadastrar evento (apenas para colaboradores logados) */}
+            {isLoggedIn && canCreateContent && (
+              <div className="flex justify-center">
+                <Dialog open={isEventModalOpen} onOpenChange={setIsEventModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="lg" className="font-semibold">
+                      <Plus className="w-5 h-5 mr-2" />
+                      Cadastrar Novo Evento
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Cadastrar Novo Evento</DialogTitle>
+                      <DialogDescription>
+                        Preencha as informações do evento abaixo
+                      </DialogDescription>
+                    </DialogHeader>
+                    <CadastroEventos />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+
+            {/* Lista de eventos melhorada */}
+            <ListaEventos />
           </div>
         )}
 
@@ -473,21 +530,39 @@ const Index = () => {
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold">Serviços</h2>
               <p className="text-muted-foreground">
-                {canCreateContent 
-                  ? "Cadastre novos serviços ou visualize os existentes"
-                  : "Explore serviços disponíveis para contratação"
-                }
+                Encontre e contrate serviços de qualidade
               </p>
             </div>
-            <div className="grid lg:grid-cols-2 gap-8">
-              {canCreateContent && <CadastroServicos />}
-              <ListaServicos />
-            </div>
+
+            {/* Botão para cadastrar serviço (apenas para colaboradores logados) */}
+            {isLoggedIn && canCreateContent && (
+              <div className="flex justify-center">
+                <Dialog open={isServiceModalOpen} onOpenChange={setIsServiceModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button size="lg" className="font-semibold">
+                      <Plus className="w-5 h-5 mr-2" />
+                      Cadastrar Novo Serviço
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Cadastrar Novo Serviço</DialogTitle>
+                      <DialogDescription>
+                        Preencha as informações do serviço abaixo
+                      </DialogDescription>
+                    </DialogHeader>
+                    <CadastroServicos />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+
+            <ListaServicos />
           </div>
         )}
 
-        {/* Seção do carrinho de compras */}
-        {activeTab === 'carrinho' && (
+        {/* Seção do carrinho de compras (apenas para usuários logados) */}
+        {activeTab === 'carrinho' && isLoggedIn && (
           <div className="space-y-8">
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-bold">Carrinho de Compras</h2>
