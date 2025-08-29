@@ -26,7 +26,7 @@ All colors MUST be HSL.
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
+    --accent: 210 40% 94%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -39,20 +39,21 @@ All colors MUST be HSL.
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Custom variables for better theme consistency */
+    --success: 142 76% 36%;
+    --success-foreground: 355 100% 97%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222.2 47.4% 11.2%;
+    --info: 217 91% 60%;
+    --info-foreground: 222.2 47.4% 11.2%;
   }
 
   .dark {
@@ -65,7 +66,7 @@ All colors MUST be HSL.
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -77,20 +78,29 @@ All colors MUST be HSL.
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62.8% 50%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 217.2 91.2% 59.8%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary: 217.2 91.2% 59.8%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Custom variables for dark mode */
+    --success: 142 71% 45%;
+    --success-foreground: 144 100% 97%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 20 14.3% 4.1%;
+    --info: 217 91% 60%;
+    --info-foreground: 222.2 47.4% 11.2%;
   }
 }
 
@@ -101,5 +111,83 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Hero section gradient improvements */
+  .hero-gradient {
+    @apply bg-gradient-to-br from-blue-600 via-purple-600 to-green-600;
+  }
+
+  .dark .hero-gradient {
+    @apply bg-gradient-to-br from-blue-700 via-purple-700 to-green-700;
+  }
+
+  /* Special button styles for gradient backgrounds */
+  .btn-hero-outline {
+    @apply border-2 border-white/80 text-white bg-white/10 backdrop-blur-sm font-semibold transition-all duration-300;
+  }
+
+  .btn-hero-outline:hover {
+    @apply bg-white text-purple-700 border-white shadow-lg transform scale-105;
+  }
+
+  .dark .btn-hero-outline {
+    @apply border-white/70 text-white bg-white/5;
+  }
+
+  .dark .btn-hero-outline:hover {
+    @apply bg-white text-purple-800 border-white;
+  }
+
+  /* CTA section gradient improvements */
+  .cta-gradient {
+    @apply bg-gradient-to-r from-indigo-600 to-purple-600;
+  }
+
+  .dark .cta-gradient {
+    @apply bg-gradient-to-r from-indigo-700 to-purple-700;
+  }
+
+  /* Improve card backgrounds with gradients */
+  .card-gradient-blue {
+    @apply bg-gradient-to-br from-blue-50 to-indigo-100;
+  }
+
+  .dark .card-gradient-blue {
+    @apply bg-gradient-to-br from-blue-950/50 to-indigo-900/50;
+  }
+
+  .card-gradient-purple {
+    @apply bg-gradient-to-br from-purple-50 to-violet-100;
+  }
+
+  .dark .card-gradient-purple {
+    @apply bg-gradient-to-br from-purple-950/50 to-violet-900/50;
+  }
+
+  .card-gradient-green {
+    @apply bg-gradient-to-br from-emerald-50 to-teal-100;
+  }
+
+  .dark .card-gradient-green {
+    @apply bg-gradient-to-br from-emerald-950/50 to-teal-900/50;
+  }
+
+  /* Text gradient improvements */
+  .text-gradient-yellow-orange {
+    @apply bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent;
+  }
+
+  .dark .text-gradient-yellow-orange {
+    @apply bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent;
+  }
+
+  /* Benefits section gradient */
+  .benefits-gradient {
+    @apply bg-gradient-to-r from-slate-50 to-slate-100;
+  }
+
+  .dark .benefits-gradient {
+    @apply bg-gradient-to-r from-slate-800 to-slate-900;
   }
 }
