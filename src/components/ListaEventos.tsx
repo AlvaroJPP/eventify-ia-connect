@@ -134,9 +134,15 @@ export const ListaEventos = () => {
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-lg">{evento.nome_evento}</CardTitle>
-                    <Badge variant="secondary">
-                      {formatDate(evento.data_evento)}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        variant="secondary" 
+                        className="badge-success"
+                      >
+                        <Calendar className="w-3 h-3 mr-1" />
+                        {formatDate(evento.data_evento)}
+                      </Badge>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
