@@ -257,8 +257,8 @@ const Index = () => {
         {activeTab === 'home' && (
           <div className="space-y-20">
             {/* Hero Section */}
-            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-purple-600 to-green-600 text-white">
-              <div className="absolute inset-0 bg-black/20"></div>
+            <section className="relative overflow-hidden rounded-3xl hero-gradient text-white">
+              <div className="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
               <div className="relative px-8 py-24 md:py-32 text-center">
                 <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
                   <MapPin className="w-4 h-4" />
@@ -266,7 +266,7 @@ const Index = () => {
                 </div>
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
                   Conecte-se com o
-                  <span className="block bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                  <span className="block text-gradient-yellow-orange">
                     Pará Digital
                   </span>
                 </h1>
@@ -285,8 +285,7 @@ const Index = () => {
                   </Button>
                   <Button 
                     size="lg" 
-                    variant="outline" 
-                    className="border-white text-white hover:bg-white hover:text-purple-700 font-semibold px-8 py-4 text-lg"
+                    className="btn-hero-outline px-8 py-4 text-lg"
                     onClick={() => setActiveTab('chat')}
                   >
                     <MessageCircle className="w-5 h-5 mr-2" />
@@ -332,7 +331,7 @@ const Index = () => {
               </div>
 
               <div className="grid md:grid-cols-3 gap-8">
-                <Card className="group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900">
+                <Card className="group hover:shadow-2xl transition-all duration-300 border-0 card-gradient-blue">
                   <CardHeader className="text-center pb-4">
                     <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                       <Calendar className="w-8 h-8 text-white" />
@@ -356,7 +355,7 @@ const Index = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900">
+                <Card className="group hover:shadow-2xl transition-all duration-300 border-0 card-gradient-green">
                   <CardHeader className="text-center pb-4">
                     <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-green-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                       <Users className="w-8 h-8 text-white" />
@@ -380,7 +379,7 @@ const Index = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-950 dark:to-violet-900">
+                <Card className="group hover:shadow-2xl transition-all duration-300 border-0 card-gradient-purple">
                   <CardHeader className="text-center pb-4">
                     <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                       <MessageCircle className="w-8 h-8 text-white" />
@@ -404,7 +403,7 @@ const Index = () => {
             </section>
 
             {/* Seção de Benefícios */}
-            <section className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-3xl p-8 md:p-16">
+            <section className="benefits-gradient rounded-3xl p-8 md:p-16">
               <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6">
                   <h2 className="text-3xl md:text-4xl font-bold">
@@ -458,7 +457,7 @@ const Index = () => {
             </section>
 
             {/* Call to Action Final */}
-            <section className="text-center bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-12 text-white">
+            <section className="text-center cta-gradient rounded-3xl p-12 text-white">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
                 Pronto para começar sua jornada?
               </h2>
@@ -475,8 +474,7 @@ const Index = () => {
                 </Button>
                 <Button 
                   size="lg" 
-                  variant="outline" 
-                  className="border-white text-white hover:bg-white hover:text-purple-700 font-semibold px-8 py-4"
+                  className="btn-hero-outline px-8 py-4"
                   onClick={() => setActiveTab('chat')}
                 >
                   Falar com IA
