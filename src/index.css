@@ -8,99 +8,105 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 100%; /* Background color - Light mode - White */
+    --foreground: 222.2 84% 4.9%; /* Foreground color - Light mode - Dark gray */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%; /* Card background color - Light mode - White */
+    --card-foreground: 222.2 84% 4.9%; /* Card foreground color - Light mode - Dark gray */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%; /* Popover background color - Light mode - White */
+    --popover-foreground: 222.2 84% 4.9%; /* Popover foreground color - Light mode - Dark gray */
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 222.2 47.4% 11.2%; /* Primary color - Light mode - Dark blue */
+    --primary-foreground: 210 40% 98%; /* Primary foreground color - Light mode - Light gray */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 210 40% 96.1%; /* Secondary color - Light mode - Light gray */
+    --secondary-foreground: 222.2 47.4% 11.2%; /* Secondary foreground color - Light mode - Dark gray */
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 40% 96.1%; /* Muted color - Light mode - Light gray */
+    --muted-foreground: 215.4 16.3% 46.9%; /* Muted foreground color - Light mode - Dark gray */
 
-    --accent: 210 40% 94%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 40% 94%; /* Accent color - Light mode - Light gray */
+    --accent-foreground: 222.2 47.4% 11.2%; /* Accent foreground color - Light mode - Dark gray */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%; /* Destructive color - Light mode - Light red */
+    --destructive-foreground: 210 40% 98%; /* Destructive foreground color - Light mode - Light gray */
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 214.3 31.8% 91.4%; /* Border color - Light mode - Light gray */
+    --input: 214.3 31.8% 91.4%; /* Input background color - Light mode - Light gray */
+    --ring: 222.2 84% 4.9%; /* Focus ring color - Light mode - Dark gray */
 
-    --radius: 0.5rem;
+    --radius: 0.5rem; /* Border radius - Light mode - Small */
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 98%; /* Sidebar background color - Light mode - Light gray */
+    --sidebar-foreground: 240 5.3% 26.1%; /* Sidebar foreground color - Light mode - Dark gray */
+    --sidebar-primary: 240 5.9% 10%; /* Sidebar primary color - Light mode - Dark gray */
+    --sidebar-primary-foreground: 0 0% 98%; /* Sidebar primary foreground color - Light mode - Light gray */
+    --sidebar-accent: 240 4.8% 95.9%; /* Sidebar accent color - Light mode - Light gray */
+    --sidebar-accent-foreground: 240 5.9% 10%; /* Sidebar accent foreground color - Light mode - Dark gray */
+    --sidebar-border: 220 13% 91%; /* Sidebar border color - Light mode - Light gray */
+    --sidebar-ring: 217.2 91.2% 59.8%; /* Sidebar ring color - Light mode - Dark gray */
 
     /* Custom variables for better theme consistency */
-    --success: 142 76% 36%;
-    --success-foreground: 355 100% 97%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 222.2 47.4% 11.2%;
-    --info: 217 91% 60%;
-    --info-foreground: 222.2 47.4% 11.2%;
+    --success: 142 76% 36%; /* Success color - Light mode - Green */
+    --success-foreground: 355 100% 97%; /* Success foreground color - Light mode - Light green */
+    --warning: 38 92% 50%; /* Warning color - Light mode - Yellow */
+    --warning-foreground: 222.2 47.4% 11.2%; /* Warning foreground color - Light mode - Dark gray */
+    --info: 217 91% 60%; /* Info color - Light mode - Blue */
+    --info-foreground: 222.2 47.4% 11.2%; /* Info foreground color - Light mode - Dark gray */
+
+    /* text colors */
+    --text-primary: 0 0% 20%; /* Text primary color - light mode - dark */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 222.2 84% 4.9%; /* Background color - Dark mode - Dark gray */
+    --foreground: 210 40% 98%; /* Foreground color - Dark mode - Light gray */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%; /* Card background color - Dark mode - Dark gray */
+    --card-foreground: 210 40% 98%; /* Card foreground color - Dark mode - Light gray */
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%; /* Popover background color - Dark mode - Dark gray */
+    --popover-foreground: 210 40% 98%; /* Popover foreground color - Dark mode - Light gray */
 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 217.2 91.2% 59.8%; /* Primary color - Dark mode - Light purple */
+    --primary-foreground: 222.2 47.4% 11.2%; /* Primary foreground color - Dark mode - Dark gray */
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 217.2 32.6% 17.5%; /* Secondary color - Dark mode - Dark gray */
+    --secondary-foreground: 210 40% 98%; /* Secondary foreground color - Dark mode - Light gray */
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 217.2 32.6% 17.5%; /* Muted color - Dark mode - Dark gray */
+    --muted-foreground: 215 20.2% 65.1%; /* Muted foreground color - Dark mode - Light gray */
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 217.2 32.6% 17.5%; /* Accent color - Dark mode - Dark gray */
+    --accent-foreground: 210 40% 98%; /* Accent foreground color - Dark mode - Light gray */
 
-    --destructive: 0 62.8% 50%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 50%; /* Destructive color - Dark mode - Red */
+    --destructive-foreground: 210 40% 98%; /* Destructive foreground color - Dark mode - Light gray */
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 217.2 91.2% 59.8%;
+    --border: 217.2 32.6% 17.5%; /* Border color - Dark mode - Dark gray */
+    --input: 217.2 32.6% 17.5%; /* Input background color - Dark mode - Dark gray */
+    --ring: 217.2 91.2% 59.8%; /* Focus ring color - Dark mode - Light purple */
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 217.2 91.2% 59.8%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 240 5.9% 10%; /* Sidebar background color - Dark mode - Dark gray */
+    --sidebar-foreground: 240 4.8% 95.9%; /* Sidebar foreground color - Dark mode - Light gray */
+    --sidebar-primary: 217.2 91.2% 59.8%; /* Sidebar primary color - Dark mode - Light purple */
+    --sidebar-primary-foreground: 0 0% 100%; /* Sidebar primary foreground color - Dark mode - White */
+    --sidebar-accent: 240 3.7% 15.9%; /* Sidebar accent color - Dark mode - Dark gray */
+    --sidebar-accent-foreground: 240 4.8% 95.9%; /* Sidebar accent foreground color - Dark mode - Light gray */
+    --sidebar-border: 240 3.7% 15.9%; /* Sidebar border color - Dark mode - Dark gray */
+    --sidebar-ring: 217.2 91.2% 59.8%; /* Sidebar ring color - Dark mode - Light purple */
 
     /* Custom variables for dark mode */
-    --success: 142 71% 45%;
-    --success-foreground: 144 100% 97%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 20 14.3% 4.1%;
-    --info: 217 91% 60%;
-    --info-foreground: 222.2 47.4% 11.2%;
+    --success: 142 71% 45%; /* Success color - Dark mode - Green */
+    --success-foreground: 144 100% 97%; /* Success foreground color - Dark mode - Light green */
+    --warning: 38 92% 50%; /* Warning color - Dark mode - Yellow */
+    --warning-foreground: 20 14.3% 4.1%; /* Warning foreground color - Dark mode - Dark gray */
+    --info: 217 91% 60%; /* Info color - Dark mode - Blue */
+    --info-foreground: 222.2 47.4% 11.2%; /* Info foreground color - Dark mode - Dark gray */
+
+    /* text colors */
+    --text-primary: 0 0% 100%; /* Text primary color - dark mode - light */
   }
 }
 
