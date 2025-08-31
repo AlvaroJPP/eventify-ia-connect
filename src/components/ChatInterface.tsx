@@ -268,19 +268,19 @@ Como posso ajudá-lo? 😊`;
 
   return (
     <Card className="max-w-4xl mx-auto shadow-lg border-0 bg-gradient-to-br from-slate-50/50 to-white dark:from-slate-900/50 dark:to-slate-800">
-      <CardHeader className="bg-gradient-to-r from-dark-600 to-purple-600 text-white rounded-t-lg">
+      <CardHeader className="bg-gradient-to-r from-dark-600 to-purple-600 text-text-primary rounded-t-lg">
         <CardTitle className="flex items-center gap-3">
           <div className="p-2 bg-white/20 rounded-lg">
             <MessageCircle className="w-6 h-6" />
           </div>
           <div>
             <span>Chat com Assistente Inteligente</span>
-            <div className="text-sm opacity-90 font-normal">
+            <div className="text-sm opacity-90 font-normal text-text-primary">
               Sempre disponível
             </div>
           </div>
         </CardTitle>
-        <CardDescription className="text-white/90">
+        <CardDescription className="text-text-primary">
           Faça perguntas sobre eventos e serviços cadastrados no Pará
         </CardDescription>
       </CardHeader>
@@ -316,7 +316,7 @@ Como posso ajudá-lo? 😊`;
                         </div>
                       ) : (
                         <div className="w-10 h-10 bg-gradient-to-r from-dark-500 to-teal-500 rounded-full flex items-center justify-center shadow-md">
-                          <Bot className="w-5 h-5 text-white" />
+                          <Bot className="w-5 h-5 text-foreground" />
                         </div>
                       )}
                     </div>
