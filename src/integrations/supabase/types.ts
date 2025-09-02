@@ -194,7 +194,7 @@ export type Database = {
           descricao_servico: string | null
           id: string
           nome_servico: string
-          preco_servico: number | null
+          preco_servico: number
           responsavel_servico: string
           updated_at: string
           user_id: string | null
@@ -205,7 +205,7 @@ export type Database = {
           descricao_servico?: string | null
           id?: string
           nome_servico: string
-          preco_servico?: number | null
+          preco_servico?: number
           responsavel_servico: string
           updated_at?: string
           user_id?: string | null
@@ -216,7 +216,7 @@ export type Database = {
           descricao_servico?: string | null
           id?: string
           nome_servico?: string
-          preco_servico?: number | null
+          preco_servico?: number
           responsavel_servico?: string
           updated_at?: string
           user_id?: string | null

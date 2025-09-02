@@ -1,31 +1,20 @@
-// Importa o hook useState para gerenciar o estado do componente.
 import { useState } from "react";
-// Importa componentes de UI personalizados.
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-// Importa o hook useToast para exibir notificações.
 import { useToast } from "@/hooks/use-toast";
-// Importa o cliente Supabase para interagir com o banco de dados.
 import { supabase } from "@/integrations/supabase/client";
-// Importa o hook useAuth para acessar o contexto de autenticação.
 import { useAuth } from "@/contexts/AuthContext";
-// Importa ícones da biblioteca lucide-react.
 import { Users, DollarSign, Phone } from "lucide-react";
 
-/**
- * Componente para cadastrar novos serviços.
- */
 export const CadastroServicos = () => {
-  // Obtém a função de toast para exibir notificações.
   const { toast } = useToast();
-  // Obtém o perfil do usuário do contexto de autenticação.
   const { profile } = useAuth();
-  // Estado para controlar o status de carregamento.
   const [loading, setLoading] = useState(false);
-  // Estado para armazenar os dados do formulário.
+
+  // Estado do formulário
   const [formData, setFormData] = useState({
     nome_servico: "",
     descricao_servico: "",
@@ -33,19 +22,40 @@ export const CadastroServicos = () => {
     contato_servico: ""
   });
 
-  /**
-   * Lida com o envio do formulário de cadastro de serviços.
-   * @param e - O evento do formulário.
-   */
+  // Estado para mensagens de erro
+  const [errors, setErrors] = useState<{ preco_servico?: string }>({});
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrors({});
 
     try {
-      // Obtém o usuário autenticado.
+      // validação: preço obrigatório e > 0
+      if (!formData.preco_servico || formData.preco_servico.trim() === "") {
+        setErrors({ preco_servico: "O preço é obrigatório" });
+        toast({
+          title: "Erro de validação",
+          description: "O preço é obrigatório",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const preco = parseFloat(formData.preco_servico);
+      if (isNaN(preco) || preco <= 0) {
+        setErrors({ preco_servico: "O preço deve ser maior que 0" });
+        toast({
+          title: "Erro de validação",
+          description: "O preço deve ser maior que 0",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
-      
-      // Se não houver usuário, exibe uma notificação de erro.
       if (!user) {
         toast({
           title: "Erro de autenticação",
@@ -56,20 +66,15 @@ export const CadastroServicos = () => {
         return;
       }
 
-      // Prepara os dados para inserção no banco de dados.
       const dataToInsert = {
         ...formData,
-        preco_servico: formData.preco_servico ? parseFloat(formData.preco_servico) : null,
+        preco_servico: preco, // já validado > 0
         responsavel_servico: profile?.full_name || 'Não informado',
         user_id: user.id
       };
 
-      // Insere os dados do serviço no banco de dados.
-      const { error } = await supabase
-        .from('servicos')
-        .insert([dataToInsert]);
+      const { error } = await supabase.from('servicos').insert([dataToInsert]);
 
-      // Exibe uma notificação de erro ou sucesso.
       if (error) {
         toast({
           title: "Erro ao cadastrar serviço",
@@ -81,8 +86,7 @@ export const CadastroServicos = () => {
           title: "Serviço cadastrado com sucesso!",
           description: "O serviço foi adicionado à base de dados."
         });
-        
-        // Limpa o formulário após o sucesso.
+
         setFormData({
           nome_servico: "",
           descricao_servico: "",
@@ -101,16 +105,11 @@ export const CadastroServicos = () => {
     }
   };
 
-  /**
-   * Atualiza o estado do formulário quando um campo de entrada muda.
-   * @param field - O nome do campo.
-   * @param value - O novo valor do campo.
-   */
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: "" })); // limpa erro ao digitar
   };
 
-  // Renderiza o formulário de cadastro de serviços.
   return (
     <Card>
       <CardHeader>
@@ -149,18 +148,20 @@ export const CadastroServicos = () => {
           <div>
             <Label htmlFor="preco_servico" className="flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
-              Preço do Serviço
+              Preço do Serviço *
             </Label>
             <Input
-              id="preco_servico"
-              type="number"
-              step="0.01"
-              value={formData.preco_servico}
-              onChange={(e) => handleInputChange("preco_servico", e.target.value)}
-              placeholder="0.00"
-            />
+  id="preco_servico"
+  type="text" // <- texto, para não bloquear
+  value={formData.preco_servico}
+  onChange={(e) => handleInputChange("preco_servico", e.target.value)}
+  placeholder="0.00"
+  className={errors.preco_servico ? "border-red-500" : ""}
+/>
+            {errors.preco_servico && (
+              <p className="text-red-500 text-sm mt-1">{errors.preco_servico}</p>
+            )}
           </div>
-
 
           <div>
             <Label htmlFor="contato_servico" className="flex items-center gap-2">
